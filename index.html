@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhamo GamerZ | Pro Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap');
+        body { background-color: #050507; color: white; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        
+        .logo-wrapper { position: relative; width: 60px; height: 60px; }
+        .logo-text-ring {
+            position: absolute; width: 100%; height: 100%;
+            animation: rotateRing 12s linear infinite;
+            font-size: 8px; font-weight: 900; fill: #ef4444; letter-spacing: 2px;
+        }
+        @keyframes rotateRing { to { transform: rotate(360deg); } }
+
+        .stat-card {
+            background: #111114; border: 1px solid #222;
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+
+        .secure-node {
+            background: linear-gradient(90deg, #0f0f12, #1a0505);
+            border-left: 4px solid #ef4444;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+        }
+        .secure-node::after {
+            content: "LOCKED"; position: absolute; top: 2px; right: 8px;
+            font-size: 6px; font-family: 'Orbitron'; color: #ef4444; opacity: 0.4;
+        }
+
+        .tung-tung-anim { width: 100px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 15px #ff0055); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body class="pb-24">
+
+<nav class="fixed top-0 w-full z-50 px-4 py-3 bg-black/90 backdrop-blur-md border-b border-white/5 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+        <div class="logo-wrapper flex items-center justify-center">
+            <svg class="logo-text-ring" viewBox="0 0 100 100">
+                <path id="txtPath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" fill="transparent"/>
+                <text><textPath xlink:href="#txtPath">DHAMO GAMERZ • DHAMO GAMERZ •</textPath></text>
+            </svg>
+            <img src="logo.png" class="w-9 h-9 rounded-full border-2 border-red-600 shadow-lg" onerror="this.src='https://img.icons8.com/color/96/controller.png'">
+        </div>
+        <span class="orbitron text-[11px] tracking-widest text-white uppercase">Dhamo <span class="text-red-600 text-[8px]">Pro</span></span>
+    </div>
+</nav>
+
+<div class="mt-24 px-5">
+    <div class="bg-zinc-900/50 p-6 rounded-[35px] border border-zinc-800 text-center">
+        <h2 class="orbitron text-[9px] text-red-500 mb-2 uppercase tracking-widest">About Us</h2>
+        <p id="about-text" class="text-zinc-400 text-[10px] mb-4 leading-relaxed">System Online...</p>
+        <img src="tungtung.png" class="tung-tung-anim mx-auto mb-4" onerror="this.src='https://img.icons8.com/color/144/superhero.png'">
+        <button id="yt-btn" class="w-full bg-red-600 text-[10px] font-bold py-3 rounded-2xl shadow-lg shadow-red-600/20 uppercase tracking-widest active:scale-95 transition">YouTube Channel</button>
+    </div>
+
+    <div class="mt-8">
+        <h3 class="orbitron text-[8px] text-zinc-500 mb-3 tracking-[0.4em] uppercase">Important Links</h3>
+        <div id="links-list" class="space-y-3"></div>
+    </div>
+
+    <div class="mt-8 grid grid-cols-4 gap-2 justify-items-center">
+        <div class="stat-card">
+            <span class="text-[7px] text-zinc-500 uppercase">Updated</span>
+            <span id="stat-date" class="text-[9px] font-bold text-red-500">--</span>
+        </div>
+        <div class="stat-card">
+            <span class="text-[7px] text-zinc-500 uppercase">Time</span>
+            <span id="stat-time" class="text-[9px] font-bold text-red-500">--</span>
+        </div>
+        <div class="stat-card">
+            <span class="text-[7px] text-zinc-500 uppercase">Rating</span>
+            <span class="text-[9px] font-bold text-yellow-500">4.9</span>
+        </div>
+        <div class="stat-card">
+            <span class="text-[7px] text-zinc-500 uppercase">Server</span>
+            <span class="text-[9px] font-bold text-green-500">LIVE</span>
+        </div>
+    </div>
+
+    <div class="mt-10">
+        <h3 class="orbitron text-[8px] text-red-600 mb-4 tracking-[0.5em] uppercase text-center font-black italic">Secret Links</h3>
+        <div id="secret-links-list" class="space-y-4"></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC57q11cYmT-9SG2NYFenyLbWui8XpR5MI",
+        authDomain: "my-site-yt-8c6c6.firebaseapp.com",
+        databaseURL: "https://my-site-yt-8c6c6-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "my-site-yt-8c6c6",
+        storageBucket: "my-site-yt-8c6c6.firebasestorage.app",
+        messagingSenderId: "17645191367",
+        appId: "1:17645191367:web:b71f951141a7a2aec3fee2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const updateStats = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - 30);
+        document.getElementById('stat-time').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        document.getElementById('stat-date').innerText = now.getDate() + "/" + (now.getMonth()+1) + "/2026";
+    };
+    updateStats();
+
+    onValue(ref(db, 'siteSettings'), (snap) => {
+        const d = snap.val();
+        if(d) {
+            document.getElementById('about-text').innerText = d.aboutText;
+            document.getElementById('yt-btn').onclick = () => window.location.href = d.ytLink;
+        }
+    });
+
+    onValue(ref(db, 'links'), (snap) => {
+        const list = document.getElementById('links-list');
+        list.innerHTML = "";
+        if(snap.exists()){
+            Object.values(snap.val()).forEach(i => {
+                list.innerHTML += `<a href="${i.url}" class="bg-zinc-900/60 p-4 rounded-2xl border border-white/5 flex justify-between items-center transition active:scale-95"><div class="flex items-center gap-3"><img src="${i.img || 'https://img.icons8.com/color/48/link.png'}" class="w-6 h-6 rounded-lg"><span class="text-[11px] font-bold text-zinc-300 uppercase">${i.title}</span></div><i class="fas fa-chevron-right text-[9px] opacity-20"></i></a>`;
+            });
+        }
+    });
+
+    onValue(ref(db, 'secretLinks'), (snap) => {
+        const list = document.getElementById('secret-links-list');
+        list.innerHTML = "";
+        if(snap.exists()){
+            Object.values(snap.val()).forEach(i => {
+                const div = document.createElement('div');
+                div.className = "secure-node p-5 rounded-2xl flex justify-between items-center cursor-pointer active:scale-95 transition";
+                div.innerHTML = `<div class="flex items-center gap-4"><img src="${i.img || 'https://img.icons8.com/color/48/lock.png'}" class="w-8 h-8 rounded border border-red-500/50"><div><p class="text-[11px] font-black text-red-500 uppercase italic">${i.title}</p><p class="text-[7px] text-zinc-500">ENCRYPTION ACTIVE</p></div></div><i class="fas fa-fingerprint text-red-600 text-lg"></i>`;
+                div.onclick = async () => {
+                    const { value: p } = await Swal.fire({ 
+                        title: 'PROTECTED NODE', 
+                        input: 'password', 
+                        inputPlaceholder: 'Enter Secret Code',
+                        background: '#0a0a0c', color: '#fff', confirmButtonColor: '#ef4444' 
+                    });
+                    if(p === i.code) { 
+                        window.location.href = i.url; 
+                    } else if(p !== undefined) { 
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'GALAT CODE HAI BHAI!', 
+                            html: `<p style="font-size:12px; color:#aaa; margin-bottom:15px;">Code ke liye ye video dekho:</p><a href="${i.ytVideo}" target="_blank" style="display:block; background:#ef4444; color:white; padding:10px; border-radius:10px; font-weight:bold; text-decoration:none;">WATCH VIDEO FOR CODE</a>`,
+                            background: '#0a0a0c', color: '#fff', showConfirmButton: false
+                        }); 
+                    }
+                };
+                list.appendChild(div);
+            });
+        }
+    });
+</script>
+</body>
+</html>
